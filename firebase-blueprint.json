@@ -1,0 +1,412 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Administrator account authorized to manage exam schedules and student registrations.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Administrator email address.",
+          "maxLength": 100
+        },
+        "role": {
+          "type": "string",
+          "description": "Role level of the administrator.",
+          "enum": ["superadmin", "admin"],
+          "maxLength": 20
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp when the admin record was created.",
+          "maxLength": 50
+        }
+      },
+      "required": ["email", "role"]
+    },
+    "RegistrationPeriod": {
+      "title": "RegistrationPeriod",
+      "description": "Global settings for the exam registration session.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Registration title banner.",
+          "maxLength": 150
+        },
+        "semester": {
+          "type": "string",
+          "description": "Academic semester designation.",
+          "maxLength": 50
+        },
+        "academicYear": {
+          "type": "string",
+          "description": "Academic year designation.",
+          "maxLength": 20
+        },
+        "isOpen": {
+          "type": "boolean",
+          "description": "Master switch enabling or disabling public registration."
+        },
+        "openDate": {
+          "type": "string",
+          "description": "Opening date string.",
+          "maxLength": 30
+        },
+        "closeDate": {
+          "type": "string",
+          "description": "Closing date string.",
+          "maxLength": 30
+        },
+        "announcement": {
+          "type": "string",
+          "description": "Official instructions and notices for students.",
+          "maxLength": 1000
+        },
+        "allowDuplicateNim": {
+          "type": "boolean",
+          "description": "Whether the same NIM can register for multiple exam slots."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last settings modification.",
+          "maxLength": 50
+        }
+      },
+      "required": ["title", "isOpen"]
+    },
+    "ExamSlot": {
+      "title": "ExamSlot",
+      "description": "Specific schedule slot with capacity constraints.",
+      "type": "object",
+      "properties": {
+        "regionId": {
+          "type": "string",
+          "description": "ID of parent exam region.",
+          "maxLength": 100
+        },
+        "regionName": {
+          "type": "string",
+          "description": "Parent exam region name.",
+          "maxLength": 100
+        },
+        "locationId": {
+          "type": "string",
+          "description": "ID of parent exam location.",
+          "maxLength": 100
+        },
+        "locationAddress": {
+          "type": "string",
+          "description": "Address of exam location.",
+          "maxLength": 250
+        },
+        "day": {
+          "type": "string",
+          "description": "Exam day designation (e.g., Hari 1, Hari 2).",
+          "maxLength": 50
+        },
+        "date": {
+          "type": "string",
+          "description": "Full calendar date of the exam.",
+          "maxLength": 50
+        },
+        "sessionName": {
+          "type": "string",
+          "description": "Name of the session (e.g., Sesi 1, Sesi 2).",
+          "maxLength": 50
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Starting time in 24-hour format.",
+          "maxLength": 10
+        },
+        "endTime": {
+          "type": "string",
+          "description": "Ending time in 24-hour format.",
+          "maxLength": 10
+        },
+        "timeRange": {
+          "type": "string",
+          "description": "Exact hours of the exam session.",
+          "maxLength": 50
+        },
+        "location": {
+          "type": "string",
+          "description": "Exam center location.",
+          "maxLength": 150
+        },
+        "room": {
+          "type": "string",
+          "description": "Specific room or computer laboratory.",
+          "maxLength": 100
+        },
+        "capacity": {
+          "type": "number",
+          "description": "Total seat capacity for this slot."
+        },
+        "registeredCount": {
+          "type": "number",
+          "description": "Current number of registered examinees."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this slot is open for selection."
+        },
+        "sortOrder": {
+          "type": "number",
+          "description": "Display order index."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp.",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp.",
+          "maxLength": 50
+        }
+      },
+      "required": ["day", "date", "sessionName", "timeRange", "location", "capacity", "registeredCount", "isActive"]
+    },
+    "Registration": {
+      "title": "Registration",
+      "description": "Student exam session registration record.",
+      "type": "object",
+      "properties": {
+        "refNumber": {
+          "type": "string",
+          "description": "Unique verification reference number.",
+          "maxLength": 50
+        },
+        "nim": {
+          "type": "string",
+          "description": "Student identification number (NIM).",
+          "maxLength": 20
+        },
+        "fullName": {
+          "type": "string",
+          "description": "Student full legal name.",
+          "maxLength": 120
+        },
+        "studyProgram": {
+          "type": "string",
+          "description": "Academic major or program of study.",
+          "maxLength": 120
+        },
+        "faculty": {
+          "type": "string",
+          "description": "UT faculty affiliation.",
+          "maxLength": 100
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "Contact WhatsApp telephone number.",
+          "maxLength": 30
+        },
+        "slotId": {
+          "type": "string",
+          "description": "ID of the associated exam slot.",
+          "maxLength": 100
+        },
+        "day": {
+          "type": "string",
+          "description": "Scheduled exam day.",
+          "maxLength": 50
+        },
+        "date": {
+          "type": "string",
+          "description": "Scheduled exam date.",
+          "maxLength": 50
+        },
+        "sessionName": {
+          "type": "string",
+          "description": "Scheduled exam session.",
+          "maxLength": 50
+        },
+        "timeRange": {
+          "type": "string",
+          "description": "Scheduled exam time range.",
+          "maxLength": 50
+        },
+        "location": {
+          "type": "string",
+          "description": "Scheduled exam location.",
+          "maxLength": 150
+        },
+        "room": {
+          "type": "string",
+          "description": "Scheduled exam room.",
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "description": "Verification status of the registration.",
+          "enum": ["Terdaftar", "Perlu Verifikasi", "Dibatalkan"],
+          "maxLength": 30
+        },
+        "registeredAt": {
+          "type": "string",
+          "description": "Timestamp when registration was submitted.",
+          "maxLength": 50
+        }
+      },
+      "required": ["refNumber", "nim", "fullName", "studyProgram", "slotId", "day", "date", "sessionName", "timeRange", "location", "status", "registeredAt"]
+    },
+    "NimRegistration": {
+      "title": "NimRegistration",
+      "description": "Direct index mapping NIM to active registration document to guarantee single-registration invariant without collection querying.",
+      "type": "object",
+      "properties": {
+        "nim": {
+          "type": "string",
+          "description": "Student identification number.",
+          "maxLength": 20
+        },
+        "registrationId": {
+          "type": "string",
+          "description": "Document ID in registrations collection.",
+          "maxLength": 100
+        },
+        "refNumber": {
+          "type": "string",
+          "description": "Unique verification reference number.",
+          "maxLength": 50
+        },
+        "registeredAt": {
+          "type": "string",
+          "description": "Registration submission timestamp.",
+          "maxLength": 50
+        }
+      },
+      "required": ["nim", "registrationId", "refNumber", "registeredAt"]
+    },
+    "ExamRegion": {
+      "title": "ExamRegion",
+      "description": "Operational administrative region for exam distribution.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the region (e.g. Magelang, Kulon Progo).",
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional notes or description for the region.",
+          "maxLength": 250
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether the region is open for student selection."
+        },
+        "sortOrder": {
+          "type": "number",
+          "description": "Display order index."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp.",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp.",
+          "maxLength": 50
+        }
+      },
+      "required": ["name", "isActive", "sortOrder"]
+    },
+    "ExamLocation": {
+      "title": "ExamLocation",
+      "description": "Specific testing center or school location associated with a region.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the test center (e.g. SMK Negeri 1 Pengasih).",
+          "maxLength": 150
+        },
+        "regionId": {
+          "type": "string",
+          "description": "ID of parent exam region.",
+          "maxLength": 100
+        },
+        "regionName": {
+          "type": "string",
+          "description": "Cached parent region name.",
+          "maxLength": 100
+        },
+        "address": {
+          "type": "string",
+          "description": "Complete physical street address of the venue.",
+          "maxLength": 250
+        },
+        "city": {
+          "type": "string",
+          "description": "District or regency.",
+          "maxLength": 100
+        },
+        "province": {
+          "type": "string",
+          "description": "Province.",
+          "maxLength": 100
+        },
+        "capacity": {
+          "type": "number",
+          "description": "Total examinee capacity."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether location is active."
+        },
+        "sortOrder": {
+          "type": "number",
+          "description": "Display order."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp.",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp.",
+          "maxLength": 50
+        }
+      },
+      "required": ["name", "regionId", "address", "capacity", "isActive", "sortOrder"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "Admin" },
+      "description": "Collection of authorized admin users."
+    },
+    "/settings/registrationPeriod": {
+      "schema": { "$ref": "RegistrationPeriod" },
+      "description": "Single document holding active registration period and operational settings."
+    },
+    "/examRegions/{regionId}": {
+      "schema": { "$ref": "ExamRegion" },
+      "description": "Collection of administrative exam regions."
+    },
+    "/examLocations/{locationId}": {
+      "schema": { "$ref": "ExamLocation" },
+      "description": "Collection of physical exam locations linked to regions."
+    },
+    "/examSlots/{slotId}": {
+      "schema": { "$ref": "ExamSlot" },
+      "description": "Collection of official exam schedule slots and live capacity tracking."
+    },
+    "/registrations/{registrationId}": {
+      "schema": { "$ref": "Registration" },
+      "description": "Collection of student registrations submitted for exam slots."
+    },
+    "/nimRegistrations/{nim}": {
+      "schema": { "$ref": "NimRegistration" },
+      "description": "Direct index document keyed by NIM for O(1) deduplication and secure single-student lookup."
+    }
+  }
+}

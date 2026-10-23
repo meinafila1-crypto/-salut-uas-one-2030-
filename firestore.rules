@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'meinafila1@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.email == 'meinafila1@gmail.com'
+      );
+    }
+
+    // Admins collection - strictly protected
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
+      allow list: if isAdmin();
+      allow create, update, delete: if isBootstrappedAdmin();
+    }
+
+    // Registration Period & System Settings
+    match /settings/{settingId} {
+      allow get: if true; // Public must know if registration is open
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Exam Regions (Dynamic Wilayah Ujian)
+    match /examRegions/{regionId} {
+      allow get, list: if true; // Public must view active regions in registration dropdown
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Exam Locations (Dynamic Lokasi Ujian)
+    match /examLocations/{locationId} {
+      allow get, list: if true; // Public must view active locations for selected region
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Exam Slots
+    match /examSlots/{slotId} {
+      allow get, list: if true; // Public needs to view official available schedules and remaining seats
+
+      // Admin has full control over slots
+      allow create, delete: if isAdmin();
+
+      // Updates: either admin can update all fields, or public can atomically increment registeredCount on registration
+      allow update: if isAdmin() || (
+        isValidId(slotId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredCount', 'updatedAt']) &&
+        request.resource.data.registeredCount is number &&
+        request.resource.data.registeredCount == resource.data.registeredCount + 1 &&
+        request.resource.data.registeredCount <= resource.data.capacity
+      );
+    }
+
+    // Registrations collection
+    match /registrations/{registrationId} {
+      // Individual lookup permitted if they have the direct document ID
+      allow get: if true;
+
+      // STRICT PRIVACY: Public CANNOT query or list all student registrations. Only Admin can list.
+      allow list: if isAdmin();
+
+      // Creation allowed for students registering
+      allow create: if isValidId(registrationId) &&
+        request.resource.data.keys().hasAll([
+          'refNumber', 'nim', 'fullName', 'studyProgram', 'slotId',
+          'day', 'date', 'sessionName', 'timeRange', 'location',
+          'status', 'registeredAt'
+        ]) &&
+        request.resource.data.refNumber is string && request.resource.data.refNumber.size() <= 50 &&
+        request.resource.data.nim is string && request.resource.data.nim.size() >= 5 && request.resource.data.nim.size() <= 20 &&
+        request.resource.data.fullName is string && request.resource.data.fullName.size() >= 2 && request.resource.data.fullName.size() <= 120 &&
+        request.resource.data.studyProgram is string && request.resource.data.studyProgram.size() <= 120 &&
+        request.resource.data.slotId is string && request.resource.data.slotId.size() <= 100 &&
+        request.resource.data.day is string && request.resource.data.day.size() <= 50 &&
+        request.resource.data.date is string && request.resource.data.date.size() <= 50 &&
+        request.resource.data.sessionName is string && request.resource.data.sessionName.size() <= 50 &&
+        request.resource.data.timeRange is string && request.resource.data.timeRange.size() <= 50 &&
+        request.resource.data.location is string && request.resource.data.location.size() <= 150 &&
+        request.resource.data.status == 'Terdaftar' &&
+        request.resource.data.registeredAt is string && request.resource.data.registeredAt.size() <= 50;
+
+      // Only admins can update status or cancel/delete registration
+      allow update, delete: if isAdmin();
+    }
+
+    // NIM Registration Direct Index (Guarantees single registration & O(1) secure lookup without listing)
+    match /nimRegistrations/{nim} {
+      // Allow single document get (student looking up their own NIM)
+      allow get: if true;
+
+      // Public CANNOT list all registered NIMs (Privacy protection)
+      allow list: if isAdmin();
+
+      // Public can create entry during registration only if valid and matches path
+      allow create: if isValidId(nim) &&
+        request.resource.data.nim == nim &&
+        request.resource.data.registrationId is string &&
+        request.resource.data.refNumber is string &&
+        request.resource.data.registeredAt is string;
+
+      // Only admin can update or delete
+      allow update, delete: if isAdmin();
+    }
+  }
+}

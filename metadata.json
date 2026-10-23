@@ -1,0 +1,8 @@
+{
+  "name": "one SALUT UAS ONE 2030",
+  "description": "Sistem Registrasi dan Pemilihan Jadwal Ujian Akhir Semester (UAS) Mahasiswa UT melalui SALUT Cahaya Merapi, Universitas Terbuka Yogyakarta.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
